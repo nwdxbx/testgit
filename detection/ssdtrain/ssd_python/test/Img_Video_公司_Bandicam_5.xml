@@ -1,0 +1,32 @@
+<annotation>
+   <folder>VOC2007</folder>
+   <filename>Img_Video_公司_Bandicam_5</filename>
+   <source>
+       <database>The VOC2007 Database</database>
+       <annotation>PASCAL VOC2007</annotation>
+       <image>flickr</image>
+       <flickrid>329145082</flickrid>
+   </source>
+   <owner>>
+       <flickrid>hiromori2</flickrid>
+       <name>Hiroyuki Mori</name>
+   </owner>>
+   <size>
+       <width>1280</width>
+       <height>720</height>
+       <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+       <name>renlian</name>
+       <pose>Unspecified</pose>
+       <truncated>0</truncated>
+       <difficult>0</difficult>
+       <bndbox>
+           <xmin>437</xmin>
+           <ymin>305</ymin>
+           <xmax>656</xmax>
+           <ymax>545</ymax>
+       </bndbox>
+   </object>
+</annotation>
