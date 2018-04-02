@@ -1,0 +1,748 @@
+I0620 13:47:38.036952 12884 caffe.cpp:218] Using GPUs 0
+I0620 13:47:38.062105 12884 caffe.cpp:223] GPU 0: GeForce GTX 1080
+I0620 13:47:38.284278 12884 solver.cpp:44] Initializing solver from parameters: 
+base_lr: 1e-11
+display: 10
+max_iter: 100
+lr_policy: "step"
+gamma: 0.8
+momentum: 0.9
+weight_decay: 0.004
+stepsize: 30000
+snapshot: 1
+snapshot_prefix: "./models/"
+solver_mode: GPU
+device_id: 0
+net: "train12.prototxt"
+train_state {
+  level: 0
+  stage: ""
+}
+I0620 13:47:38.284415 12884 solver.cpp:87] Creating training net from net file: train12.prototxt
+I0620 13:47:38.284675 12884 net.cpp:51] Initializing net from parameters: 
+name: "face_12c"
+state {
+  phase: TRAIN
+  level: 0
+  stage: ""
+}
+layer {
+  name: "PythonLayer"
+  type: "Python"
+  top: "data"
+  top: "label"
+  top: "roi"
+  top: "pts"
+  python_param {
+    module: "pythonLayer"
+    layer: "Data_Layer_train"
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 10
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "PReLU1"
+  type: "PReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 16
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "PReLU2"
+  type: "PReLU"
+  bottom: "conv2"
+  top: "conv2"
+}
+layer {
+  name: "conv3"
+  type: "Convolution"
+  bottom: "conv2"
+  top: "conv3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "PReLU3"
+  type: "PReLU"
+  bottom: "conv3"
+  top: "conv3"
+}
+layer {
+  name: "conv4-1"
+  type: "Convolution"
+  bottom: "conv3"
+  top: "conv4-1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 2
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "cls_bridge"
+  type: "Python"
+  bottom: "conv4-1"
+  bottom: "label"
+  top: "conv4-1-valid"
+  top: "label-valid"
+  python_param {
+    module: "pythonLayer"
+    layer: "cls_Layer_fc"
+  }
+}
+layer {
+  name: "cls_loss"
+  type: "SoftmaxWithLoss"
+  bottom: "conv4-1-valid"
+  bottom: "label-valid"
+  top: "cls_loss"
+  loss_weight: 1
+  propagate_down: true
+  propagate_down: false
+}
+layer {
+  name: "cls_Acc"
+  type: "Accuracy"
+  bottom: "conv4-1-valid"
+  bottom: "label-valid"
+  top: "cls_Acc"
+  include {
+    phase: TRAIN
+  }
+}
+layer {
+  name: "conv4-2"
+  type: "Convolution"
+  bottom: "conv3"
+  top: "conv4-2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 4
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "roi_loss"
+  type: "Python"
+  bottom: "conv4-2"
+  bottom: "roi"
+  top: "roi_loss"
+  loss_weight: 0.5
+  python_param {
+    module: "pythonLayer"
+    layer: "regression_Layer"
+  }
+}
+layer {
+  name: "conv4-3"
+  type: "Convolution"
+  bottom: "conv3"
+  top: "conv4-3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 10
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "pts_loss"
+  type: "Python"
+  bottom: "conv4-3"
+  bottom: "pts"
+  top: "pts_loss"
+  loss_weight: 0.5
+  python_param {
+    module: "pythonLayer"
+    layer: "regression_Layer"
+  }
+}
+I0620 13:47:38.284934 12884 layer_factory.hpp:77] Creating layer PythonLayer
+I0620 13:47:38.690260 12884 net.cpp:84] Creating Layer PythonLayer
+I0620 13:47:38.690299 12884 net.cpp:380] PythonLayer -> data
+I0620 13:47:38.690327 12884 net.cpp:380] PythonLayer -> label
+I0620 13:47:38.690348 12884 net.cpp:380] PythonLayer -> roi
+I0620 13:47:38.690353 12884 net.cpp:380] PythonLayer -> pts
+Start Reading Classify Data into Memory...
+
+640000  Classify Data have been read into Memory...
+Start Reading Regression Data into Memory...
+
+360000  Regression Data have been read into Memory...
+Start Reading pts-regression Data into Memory...
+
+200000  pts-regression Data have been read into Memory...
+I0620 13:54:19.882782 12884 net.cpp:122] Setting up PythonLayer
+I0620 13:54:19.883044 12884 net.cpp:129] Top shape: 64 3 12 12 (27648)
+I0620 13:54:19.883050 12884 net.cpp:129] Top shape: 64 1 (64)
+I0620 13:54:19.883069 12884 net.cpp:129] Top shape: 64 4 (256)
+I0620 13:54:19.883072 12884 net.cpp:129] Top shape: 64 10 (640)
+I0620 13:54:19.883075 12884 net.cpp:137] Memory required for data: 114432
+I0620 13:54:19.883097 12884 layer_factory.hpp:77] Creating layer conv1
+I0620 13:54:19.883131 12884 net.cpp:84] Creating Layer conv1
+I0620 13:54:19.883137 12884 net.cpp:406] conv1 <- data
+I0620 13:54:19.883148 12884 net.cpp:380] conv1 -> conv1
+I0620 13:54:20.215369 12884 net.cpp:122] Setting up conv1
+I0620 13:54:20.215407 12884 net.cpp:129] Top shape: 64 10 10 10 (64000)
+I0620 13:54:20.215414 12884 net.cpp:137] Memory required for data: 370432
+I0620 13:54:20.215448 12884 layer_factory.hpp:77] Creating layer PReLU1
+I0620 13:54:20.215459 12884 net.cpp:84] Creating Layer PReLU1
+I0620 13:54:20.215463 12884 net.cpp:406] PReLU1 <- conv1
+I0620 13:54:20.215481 12884 net.cpp:367] PReLU1 -> conv1 (in-place)
+I0620 13:54:20.215639 12884 net.cpp:122] Setting up PReLU1
+I0620 13:54:20.215646 12884 net.cpp:129] Top shape: 64 10 10 10 (64000)
+I0620 13:54:20.215648 12884 net.cpp:137] Memory required for data: 626432
+I0620 13:54:20.215664 12884 layer_factory.hpp:77] Creating layer pool1
+I0620 13:54:20.215668 12884 net.cpp:84] Creating Layer pool1
+I0620 13:54:20.215670 12884 net.cpp:406] pool1 <- conv1
+I0620 13:54:20.215689 12884 net.cpp:380] pool1 -> pool1
+I0620 13:54:20.215746 12884 net.cpp:122] Setting up pool1
+I0620 13:54:20.215751 12884 net.cpp:129] Top shape: 64 10 5 5 (16000)
+I0620 13:54:20.215767 12884 net.cpp:137] Memory required for data: 690432
+I0620 13:54:20.215770 12884 layer_factory.hpp:77] Creating layer conv2
+I0620 13:54:20.215791 12884 net.cpp:84] Creating Layer conv2
+I0620 13:54:20.215793 12884 net.cpp:406] conv2 <- pool1
+I0620 13:54:20.215797 12884 net.cpp:380] conv2 -> conv2
+I0620 13:54:20.217175 12884 net.cpp:122] Setting up conv2
+I0620 13:54:20.217200 12884 net.cpp:129] Top shape: 64 16 3 3 (9216)
+I0620 13:54:20.217202 12884 net.cpp:137] Memory required for data: 727296
+I0620 13:54:20.217223 12884 layer_factory.hpp:77] Creating layer PReLU2
+I0620 13:54:20.217228 12884 net.cpp:84] Creating Layer PReLU2
+I0620 13:54:20.217247 12884 net.cpp:406] PReLU2 <- conv2
+I0620 13:54:20.217252 12884 net.cpp:367] PReLU2 -> conv2 (in-place)
+I0620 13:54:20.217325 12884 net.cpp:122] Setting up PReLU2
+I0620 13:54:20.217331 12884 net.cpp:129] Top shape: 64 16 3 3 (9216)
+I0620 13:54:20.217334 12884 net.cpp:137] Memory required for data: 764160
+I0620 13:54:20.217337 12884 layer_factory.hpp:77] Creating layer conv3
+I0620 13:54:20.217344 12884 net.cpp:84] Creating Layer conv3
+I0620 13:54:20.217346 12884 net.cpp:406] conv3 <- conv2
+I0620 13:54:20.217351 12884 net.cpp:380] conv3 -> conv3
+I0620 13:54:20.218761 12884 net.cpp:122] Setting up conv3
+I0620 13:54:20.218786 12884 net.cpp:129] Top shape: 64 32 1 1 (2048)
+I0620 13:54:20.218788 12884 net.cpp:137] Memory required for data: 772352
+I0620 13:54:20.218793 12884 layer_factory.hpp:77] Creating layer PReLU3
+I0620 13:54:20.218798 12884 net.cpp:84] Creating Layer PReLU3
+I0620 13:54:20.218801 12884 net.cpp:406] PReLU3 <- conv3
+I0620 13:54:20.218806 12884 net.cpp:367] PReLU3 -> conv3 (in-place)
+I0620 13:54:20.218919 12884 net.cpp:122] Setting up PReLU3
+I0620 13:54:20.218924 12884 net.cpp:129] Top shape: 64 32 1 1 (2048)
+I0620 13:54:20.218940 12884 net.cpp:137] Memory required for data: 780544
+I0620 13:54:20.218946 12884 layer_factory.hpp:77] Creating layer conv3_PReLU3_0_split
+I0620 13:54:20.218971 12884 net.cpp:84] Creating Layer conv3_PReLU3_0_split
+I0620 13:54:20.218973 12884 net.cpp:406] conv3_PReLU3_0_split <- conv3
+I0620 13:54:20.218977 12884 net.cpp:380] conv3_PReLU3_0_split -> conv3_PReLU3_0_split_0
+I0620 13:54:20.218984 12884 net.cpp:380] conv3_PReLU3_0_split -> conv3_PReLU3_0_split_1
+I0620 13:54:20.218989 12884 net.cpp:380] conv3_PReLU3_0_split -> conv3_PReLU3_0_split_2
+I0620 13:54:20.219072 12884 net.cpp:122] Setting up conv3_PReLU3_0_split
+I0620 13:54:20.219077 12884 net.cpp:129] Top shape: 64 32 1 1 (2048)
+I0620 13:54:20.219099 12884 net.cpp:129] Top shape: 64 32 1 1 (2048)
+I0620 13:54:20.219101 12884 net.cpp:129] Top shape: 64 32 1 1 (2048)
+I0620 13:54:20.219103 12884 net.cpp:137] Memory required for data: 805120
+I0620 13:54:20.219105 12884 layer_factory.hpp:77] Creating layer conv4-1
+I0620 13:54:20.219127 12884 net.cpp:84] Creating Layer conv4-1
+I0620 13:54:20.219130 12884 net.cpp:406] conv4-1 <- conv3_PReLU3_0_split_0
+I0620 13:54:20.219135 12884 net.cpp:380] conv4-1 -> conv4-1
+I0620 13:54:20.220314 12884 net.cpp:122] Setting up conv4-1
+I0620 13:54:20.220324 12884 net.cpp:129] Top shape: 64 2 1 1 (128)
+I0620 13:54:20.220326 12884 net.cpp:137] Memory required for data: 805632
+I0620 13:54:20.220331 12884 layer_factory.hpp:77] Creating layer cls_bridge
+I0620 13:54:20.220374 12884 net.cpp:84] Creating Layer cls_bridge
+I0620 13:54:20.220378 12884 net.cpp:406] cls_bridge <- conv4-1
+I0620 13:54:20.220383 12884 net.cpp:406] cls_bridge <- label
+I0620 13:54:20.220387 12884 net.cpp:380] cls_bridge -> conv4-1-valid
+I0620 13:54:20.220393 12884 net.cpp:380] cls_bridge -> label-valid
+I0620 13:54:20.220495 12884 net.cpp:122] Setting up cls_bridge
+I0620 13:54:20.220502 12884 net.cpp:129] Top shape: 64 2 1 1 (128)
+I0620 13:54:20.220505 12884 net.cpp:129] Top shape: 64 1 (64)
+I0620 13:54:20.220508 12884 net.cpp:137] Memory required for data: 806400
+I0620 13:54:20.220511 12884 layer_factory.hpp:77] Creating layer conv4-1-valid_cls_bridge_0_split
+I0620 13:54:20.220517 12884 net.cpp:84] Creating Layer conv4-1-valid_cls_bridge_0_split
+I0620 13:54:20.220521 12884 net.cpp:406] conv4-1-valid_cls_bridge_0_split <- conv4-1-valid
+I0620 13:54:20.220526 12884 net.cpp:380] conv4-1-valid_cls_bridge_0_split -> conv4-1-valid_cls_bridge_0_split_0
+I0620 13:54:20.220531 12884 net.cpp:380] conv4-1-valid_cls_bridge_0_split -> conv4-1-valid_cls_bridge_0_split_1
+I0620 13:54:20.220559 12884 net.cpp:122] Setting up conv4-1-valid_cls_bridge_0_split
+I0620 13:54:20.220564 12884 net.cpp:129] Top shape: 64 2 1 1 (128)
+I0620 13:54:20.220568 12884 net.cpp:129] Top shape: 64 2 1 1 (128)
+I0620 13:54:20.220571 12884 net.cpp:137] Memory required for data: 807424
+I0620 13:54:20.220574 12884 layer_factory.hpp:77] Creating layer label-valid_cls_bridge_1_split
+I0620 13:54:20.220578 12884 net.cpp:84] Creating Layer label-valid_cls_bridge_1_split
+I0620 13:54:20.220582 12884 net.cpp:406] label-valid_cls_bridge_1_split <- label-valid
+I0620 13:54:20.220585 12884 net.cpp:380] label-valid_cls_bridge_1_split -> label-valid_cls_bridge_1_split_0
+I0620 13:54:20.220593 12884 net.cpp:380] label-valid_cls_bridge_1_split -> label-valid_cls_bridge_1_split_1
+I0620 13:54:20.220620 12884 net.cpp:122] Setting up label-valid_cls_bridge_1_split
+I0620 13:54:20.220625 12884 net.cpp:129] Top shape: 64 1 (64)
+I0620 13:54:20.220628 12884 net.cpp:129] Top shape: 64 1 (64)
+I0620 13:54:20.220631 12884 net.cpp:137] Memory required for data: 807936
+I0620 13:54:20.220634 12884 layer_factory.hpp:77] Creating layer cls_loss
+I0620 13:54:20.220638 12884 net.cpp:84] Creating Layer cls_loss
+I0620 13:54:20.220641 12884 net.cpp:406] cls_loss <- conv4-1-valid_cls_bridge_0_split_0
+I0620 13:54:20.220645 12884 net.cpp:406] cls_loss <- label-valid_cls_bridge_1_split_0
+I0620 13:54:20.220650 12884 net.cpp:380] cls_loss -> cls_loss
+I0620 13:54:20.220657 12884 layer_factory.hpp:77] Creating layer cls_loss
+I0620 13:54:20.220863 12884 net.cpp:122] Setting up cls_loss
+I0620 13:54:20.220871 12884 net.cpp:129] Top shape: (1)
+I0620 13:54:20.220875 12884 net.cpp:132]     with loss weight 1
+I0620 13:54:20.220891 12884 net.cpp:137] Memory required for data: 807940
+I0620 13:54:20.220894 12884 layer_factory.hpp:77] Creating layer cls_Acc
+I0620 13:54:20.220901 12884 net.cpp:84] Creating Layer cls_Acc
+I0620 13:54:20.220903 12884 net.cpp:406] cls_Acc <- conv4-1-valid_cls_bridge_0_split_1
+I0620 13:54:20.220907 12884 net.cpp:406] cls_Acc <- label-valid_cls_bridge_1_split_1
+I0620 13:54:20.220913 12884 net.cpp:380] cls_Acc -> cls_Acc
+I0620 13:54:20.220921 12884 net.cpp:122] Setting up cls_Acc
+I0620 13:54:20.220924 12884 net.cpp:129] Top shape: (1)
+I0620 13:54:20.220937 12884 net.cpp:137] Memory required for data: 807944
+I0620 13:54:20.220939 12884 layer_factory.hpp:77] Creating layer conv4-2
+I0620 13:54:20.220949 12884 net.cpp:84] Creating Layer conv4-2
+I0620 13:54:20.220953 12884 net.cpp:406] conv4-2 <- conv3_PReLU3_0_split_1
+I0620 13:54:20.220959 12884 net.cpp:380] conv4-2 -> conv4-2
+I0620 13:54:20.221892 12884 net.cpp:122] Setting up conv4-2
+I0620 13:54:20.221902 12884 net.cpp:129] Top shape: 64 4 1 1 (256)
+I0620 13:54:20.221905 12884 net.cpp:137] Memory required for data: 808968
+I0620 13:54:20.221910 12884 layer_factory.hpp:77] Creating layer roi_loss
+I0620 13:54:20.221932 12884 net.cpp:84] Creating Layer roi_loss
+I0620 13:54:20.221937 12884 net.cpp:406] roi_loss <- conv4-2
+I0620 13:54:20.221941 12884 net.cpp:406] roi_loss <- roi
+I0620 13:54:20.221946 12884 net.cpp:380] roi_loss -> roi_loss
+I0620 13:54:20.222038 12884 net.cpp:122] Setting up roi_loss
+I0620 13:54:20.222046 12884 net.cpp:129] Top shape: 1 (1)
+I0620 13:54:20.222049 12884 net.cpp:132]     with loss weight 0.5
+I0620 13:54:20.222054 12884 net.cpp:137] Memory required for data: 808972
+I0620 13:54:20.222057 12884 layer_factory.hpp:77] Creating layer conv4-3
+I0620 13:54:20.222065 12884 net.cpp:84] Creating Layer conv4-3
+I0620 13:54:20.222069 12884 net.cpp:406] conv4-3 <- conv3_PReLU3_0_split_2
+I0620 13:54:20.222074 12884 net.cpp:380] conv4-3 -> conv4-3
+I0620 13:54:20.222975 12884 net.cpp:122] Setting up conv4-3
+I0620 13:54:20.222986 12884 net.cpp:129] Top shape: 64 10 1 1 (640)
+I0620 13:54:20.222990 12884 net.cpp:137] Memory required for data: 811532
+I0620 13:54:20.222995 12884 layer_factory.hpp:77] Creating layer pts_loss
+I0620 13:54:20.223012 12884 net.cpp:84] Creating Layer pts_loss
+I0620 13:54:20.223017 12884 net.cpp:406] pts_loss <- conv4-3
+I0620 13:54:20.223021 12884 net.cpp:406] pts_loss <- pts
+I0620 13:54:20.223026 12884 net.cpp:380] pts_loss -> pts_loss
+I0620 13:54:20.223112 12884 net.cpp:122] Setting up pts_loss
+I0620 13:54:20.223119 12884 net.cpp:129] Top shape: 1 (1)
+I0620 13:54:20.223122 12884 net.cpp:132]     with loss weight 0.5
+I0620 13:54:20.223127 12884 net.cpp:137] Memory required for data: 811536
+I0620 13:54:20.223130 12884 net.cpp:198] pts_loss needs backward computation.
+I0620 13:54:20.223137 12884 net.cpp:198] conv4-3 needs backward computation.
+I0620 13:54:20.223140 12884 net.cpp:198] roi_loss needs backward computation.
+I0620 13:54:20.223142 12884 net.cpp:198] conv4-2 needs backward computation.
+I0620 13:54:20.223146 12884 net.cpp:200] cls_Acc does not need backward computation.
+I0620 13:54:20.223150 12884 net.cpp:198] cls_loss needs backward computation.
+I0620 13:54:20.223152 12884 net.cpp:200] label-valid_cls_bridge_1_split does not need backward computation.
+I0620 13:54:20.223156 12884 net.cpp:198] conv4-1-valid_cls_bridge_0_split needs backward computation.
+I0620 13:54:20.223160 12884 net.cpp:198] cls_bridge needs backward computation.
+I0620 13:54:20.223165 12884 net.cpp:198] conv4-1 needs backward computation.
+I0620 13:54:20.223167 12884 net.cpp:198] conv3_PReLU3_0_split needs backward computation.
+I0620 13:54:20.223170 12884 net.cpp:198] PReLU3 needs backward computation.
+I0620 13:54:20.223173 12884 net.cpp:198] conv3 needs backward computation.
+I0620 13:54:20.223177 12884 net.cpp:198] PReLU2 needs backward computation.
+I0620 13:54:20.223179 12884 net.cpp:198] conv2 needs backward computation.
+I0620 13:54:20.223182 12884 net.cpp:198] pool1 needs backward computation.
+I0620 13:54:20.223186 12884 net.cpp:198] PReLU1 needs backward computation.
+I0620 13:54:20.223189 12884 net.cpp:198] conv1 needs backward computation.
+I0620 13:54:20.223193 12884 net.cpp:200] PythonLayer does not need backward computation.
+I0620 13:54:20.223196 12884 net.cpp:242] This network produces output cls_Acc
+I0620 13:54:20.223199 12884 net.cpp:242] This network produces output cls_loss
+I0620 13:54:20.223203 12884 net.cpp:242] This network produces output pts_loss
+I0620 13:54:20.223206 12884 net.cpp:242] This network produces output roi_loss
+I0620 13:54:20.223233 12884 net.cpp:255] Network initialization done.
+I0620 13:54:20.223279 12884 solver.cpp:56] Solver scaffolding done.
+I0620 13:54:20.223665 12884 caffe.cpp:155] Finetuning from 12net.caffemodel
+I0620 13:54:20.224380 12884 net.cpp:744] Ignoring source layer data12
+I0620 13:54:20.224388 12884 net.cpp:744] Ignoring source layer slicer_label
+I0620 13:54:20.224391 12884 net.cpp:744] Ignoring source layer label1_slicer_label_0_split
+I0620 13:54:20.224408 12884 net.cpp:744] Ignoring source layer silence
+I0620 13:54:20.224418 12884 net.cpp:744] Ignoring source layer conv4-1_conv4-1_0_split
+I0620 13:54:20.224422 12884 net.cpp:744] Ignoring source layer loss1
+I0620 13:54:20.224424 12884 net.cpp:744] Ignoring source layer loss2
+I0620 13:54:20.224427 12884 net.cpp:744] Ignoring source layer accuracy1
+I0620 13:54:20.224450 12884 caffe.cpp:248] Starting Optimization
+I0620 13:54:20.224454 12884 solver.cpp:272] Solving face_12c
+I0620 13:54:20.224457 12884 solver.cpp:273] Learning Rate Policy: step
+I0620 13:54:20.321032 12884 solver.cpp:218] Iteration 0 (-2.19462 iter/s, 0.0965548s/10 iters), loss = 7.94856
+I0620 13:54:20.321072 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.92
+I0620 13:54:20.321081 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.212261 (* 1 = 0.212261 loss)
+I0620 13:54:20.321102 12884 solver.cpp:237]     Train net output #2: pts_loss = 14.0344 (* 0.5 = 7.01718 loss)
+I0620 13:54:20.321108 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.43824 (* 0.5 = 0.719122 loss)
+I0620 13:54:20.321116 12884 sgd_solver.cpp:105] Iteration 0, lr = 1e-11
+I0620 13:54:20.321408 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_1.caffemodel
+I0620 13:54:20.321946 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_1.solverstate
+I0620 13:54:20.323645 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_2.caffemodel
+I0620 13:54:20.324017 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_2.solverstate
+I0620 13:54:20.325605 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_3.caffemodel
+I0620 13:54:20.325987 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_3.solverstate
+I0620 13:54:20.327682 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_4.caffemodel
+I0620 13:54:20.328038 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_4.solverstate
+I0620 13:54:20.329675 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_5.caffemodel
+I0620 13:54:20.330051 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_5.solverstate
+I0620 13:54:20.331728 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_6.caffemodel
+I0620 13:54:20.332098 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_6.solverstate
+I0620 13:54:20.334152 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_7.caffemodel
+I0620 13:54:20.334774 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_7.solverstate
+I0620 13:54:20.336613 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_8.caffemodel
+I0620 13:54:20.336992 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_8.solverstate
+I0620 13:54:20.338686 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_9.caffemodel
+I0620 13:54:20.339057 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_9.solverstate
+I0620 13:54:20.340749 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_10.caffemodel
+I0620 13:54:20.341117 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_10.solverstate
+I0620 13:54:20.342783 12884 solver.cpp:218] Iteration 10 (460.709 iter/s, 0.0217057s/10 iters), loss = 7.16582
+I0620 13:54:20.342800 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.9
+I0620 13:54:20.342831 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.218643 (* 1 = 0.218643 loss)
+I0620 13:54:20.342836 12884 solver.cpp:237]     Train net output #2: pts_loss = 12.3453 (* 0.5 = 6.17264 loss)
+I0620 13:54:20.342855 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.54907 (* 0.5 = 0.774535 loss)
+I0620 13:54:20.342860 12884 sgd_solver.cpp:105] Iteration 10, lr = 1e-11
+I0620 13:54:20.342984 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_11.caffemodel
+I0620 13:54:20.343329 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_11.solverstate
+I0620 13:54:20.344982 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_12.caffemodel
+I0620 13:54:20.345376 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_12.solverstate
+I0620 13:54:20.347012 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_13.caffemodel
+I0620 13:54:20.347394 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_13.solverstate
+I0620 13:54:20.349995 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_14.caffemodel
+I0620 13:54:20.350412 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_14.solverstate
+I0620 13:54:20.352438 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_15.caffemodel
+I0620 13:54:20.352807 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_15.solverstate
+I0620 13:54:20.354519 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_16.caffemodel
+I0620 13:54:20.354876 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_16.solverstate
+I0620 13:54:20.356531 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_17.caffemodel
+I0620 13:54:20.356885 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_17.solverstate
+I0620 13:54:20.358513 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_18.caffemodel
+I0620 13:54:20.358883 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_18.solverstate
+I0620 13:54:20.360556 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_19.caffemodel
+I0620 13:54:20.360930 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_19.solverstate
+I0620 13:54:20.362561 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_20.caffemodel
+I0620 13:54:20.362926 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_20.solverstate
+I0620 13:54:20.364626 12884 solver.cpp:218] Iteration 20 (458.316 iter/s, 0.021819s/10 iters), loss = 7.75286
+I0620 13:54:20.364644 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.863636
+I0620 13:54:20.364663 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.500591 (* 1 = 0.500591 loss)
+I0620 13:54:20.364668 12884 solver.cpp:237]     Train net output #2: pts_loss = 13.138 (* 0.5 = 6.56902 loss)
+I0620 13:54:20.364673 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.36649 (* 0.5 = 0.683246 loss)
+I0620 13:54:20.364677 12884 sgd_solver.cpp:105] Iteration 20, lr = 1e-11
+I0620 13:54:20.364785 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_21.caffemodel
+I0620 13:54:20.365103 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_21.solverstate
+I0620 13:54:20.366873 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_22.caffemodel
+I0620 13:54:20.367266 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_22.solverstate
+I0620 13:54:20.368955 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_23.caffemodel
+I0620 13:54:20.369335 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_23.solverstate
+I0620 13:54:20.370998 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_24.caffemodel
+I0620 13:54:20.371376 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_24.solverstate
+I0620 13:54:20.373033 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_25.caffemodel
+I0620 13:54:20.373405 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_25.solverstate
+I0620 13:54:20.375018 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_26.caffemodel
+I0620 13:54:20.375385 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_26.solverstate
+I0620 13:54:20.377025 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_27.caffemodel
+I0620 13:54:20.377398 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_27.solverstate
+I0620 13:54:20.379061 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_28.caffemodel
+I0620 13:54:20.379436 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_28.solverstate
+I0620 13:54:20.381988 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_29.caffemodel
+I0620 13:54:20.382436 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_29.solverstate
+I0620 13:54:20.384388 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_30.caffemodel
+I0620 13:54:20.384788 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_30.solverstate
+I0620 13:54:20.386449 12884 solver.cpp:218] Iteration 30 (458.72 iter/s, 0.0217998s/10 iters), loss = 8.2158
+I0620 13:54:20.386482 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.909091
+I0620 13:54:20.386489 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.264118 (* 1 = 0.264118 loss)
+I0620 13:54:20.386495 12884 solver.cpp:237]     Train net output #2: pts_loss = 14.4014 (* 0.5 = 7.20071 loss)
+I0620 13:54:20.386514 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.50196 (* 0.5 = 0.750978 loss)
+I0620 13:54:20.386518 12884 sgd_solver.cpp:105] Iteration 30, lr = 1e-11
+I0620 13:54:20.386641 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_31.caffemodel
+I0620 13:54:20.386987 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_31.solverstate
+I0620 13:54:20.388726 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_32.caffemodel
+I0620 13:54:20.389109 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_32.solverstate
+I0620 13:54:20.390775 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_33.caffemodel
+I0620 13:54:20.391181 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_33.solverstate
+I0620 13:54:20.392925 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_34.caffemodel
+I0620 13:54:20.393316 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_34.solverstate
+I0620 13:54:20.394982 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_35.caffemodel
+I0620 13:54:20.395383 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_35.solverstate
+I0620 13:54:20.397037 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_36.caffemodel
+I0620 13:54:20.397418 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_36.solverstate
+I0620 13:54:20.399108 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_37.caffemodel
+I0620 13:54:20.399715 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_37.solverstate
+I0620 13:54:20.401433 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_38.caffemodel
+I0620 13:54:20.401811 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_38.solverstate
+I0620 13:54:20.403472 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_39.caffemodel
+I0620 13:54:20.403872 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_39.solverstate
+I0620 13:54:20.405540 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_40.caffemodel
+I0620 13:54:20.405918 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_40.solverstate
+I0620 13:54:20.407634 12884 solver.cpp:218] Iteration 40 (472.784 iter/s, 0.0211513s/10 iters), loss = 7.97798
+I0620 13:54:20.407663 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.8
+I0620 13:54:20.407670 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.25949 (* 1 = 0.25949 loss)
+I0620 13:54:20.407690 12884 solver.cpp:237]     Train net output #2: pts_loss = 14.1424 (* 0.5 = 7.07118 loss)
+I0620 13:54:20.407694 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.29462 (* 0.5 = 0.647308 loss)
+I0620 13:54:20.407698 12884 sgd_solver.cpp:105] Iteration 40, lr = 1e-11
+I0620 13:54:20.407820 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_41.caffemodel
+I0620 13:54:20.408161 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_41.solverstate
+I0620 13:54:20.409792 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_42.caffemodel
+I0620 13:54:20.410185 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_42.solverstate
+I0620 13:54:20.411903 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_43.caffemodel
+I0620 13:54:20.412395 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_43.solverstate
+I0620 13:54:20.414347 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_44.caffemodel
+I0620 13:54:20.414824 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_44.solverstate
+I0620 13:54:20.416769 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_45.caffemodel
+I0620 13:54:20.417166 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_45.solverstate
+I0620 13:54:20.418843 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_46.caffemodel
+I0620 13:54:20.419226 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_46.solverstate
+I0620 13:54:20.421000 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_47.caffemodel
+I0620 13:54:20.421377 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_47.solverstate
+I0620 13:54:20.423048 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_48.caffemodel
+I0620 13:54:20.423416 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_48.solverstate
+I0620 13:54:20.425143 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_49.caffemodel
+I0620 13:54:20.425518 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_49.solverstate
+I0620 13:54:20.427193 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_50.caffemodel
+I0620 13:54:20.427605 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_50.solverstate
+I0620 13:54:20.429260 12884 solver.cpp:218] Iteration 50 (463.089 iter/s, 0.0215941s/10 iters), loss = 6.60528
+I0620 13:54:20.429277 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.9375
+I0620 13:54:20.429283 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.0900403 (* 1 = 0.0900403 loss)
+I0620 13:54:20.429287 12884 solver.cpp:237]     Train net output #2: pts_loss = 11.7251 (* 0.5 = 5.86254 loss)
+I0620 13:54:20.429291 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.30539 (* 0.5 = 0.652694 loss)
+I0620 13:54:20.429294 12884 sgd_solver.cpp:105] Iteration 50, lr = 1e-11
+I0620 13:54:20.429419 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_51.caffemodel
+I0620 13:54:20.429738 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_51.solverstate
+I0620 13:54:20.431406 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_52.caffemodel
+I0620 13:54:20.431818 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_52.solverstate
+I0620 13:54:20.433588 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_53.caffemodel
+I0620 13:54:20.433987 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_53.solverstate
+I0620 13:54:20.435722 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_54.caffemodel
+I0620 13:54:20.436111 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_54.solverstate
+I0620 13:54:20.437748 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_55.caffemodel
+I0620 13:54:20.438125 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_55.solverstate
+I0620 13:54:20.439810 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_56.caffemodel
+I0620 13:54:20.440206 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_56.solverstate
+I0620 13:54:20.441864 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_57.caffemodel
+I0620 13:54:20.442250 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_57.solverstate
+I0620 13:54:20.444028 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_58.caffemodel
+I0620 13:54:20.444525 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_58.solverstate
+I0620 13:54:20.446442 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_59.caffemodel
+I0620 13:54:20.446909 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_59.solverstate
+I0620 13:54:20.448884 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_60.caffemodel
+I0620 13:54:20.449281 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_60.solverstate
+I0620 13:54:20.451056 12884 solver.cpp:218] Iteration 60 (459.303 iter/s, 0.0217721s/10 iters), loss = 8.40714
+I0620 13:54:20.451087 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.923077
+I0620 13:54:20.451094 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.403055 (* 1 = 0.403055 loss)
+I0620 13:54:20.451114 12884 solver.cpp:237]     Train net output #2: pts_loss = 14.6429 (* 0.5 = 7.32144 loss)
+I0620 13:54:20.451119 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.36529 (* 0.5 = 0.682644 loss)
+I0620 13:54:20.451123 12884 sgd_solver.cpp:105] Iteration 60, lr = 1e-11
+I0620 13:54:20.451247 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_61.caffemodel
+I0620 13:54:20.451601 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_61.solverstate
+I0620 13:54:20.453296 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_62.caffemodel
+I0620 13:54:20.453687 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_62.solverstate
+I0620 13:54:20.455405 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_63.caffemodel
+I0620 13:54:20.455790 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_63.solverstate
+I0620 13:54:20.457439 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_64.caffemodel
+I0620 13:54:20.457818 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_64.solverstate
+I0620 13:54:20.459525 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_65.caffemodel
+I0620 13:54:20.459906 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_65.solverstate
+I0620 13:54:20.461565 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_66.caffemodel
+I0620 13:54:20.461952 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_66.solverstate
+I0620 13:54:20.463692 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_67.caffemodel
+I0620 13:54:20.464058 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_67.solverstate
+I0620 13:54:20.465692 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_68.caffemodel
+I0620 13:54:20.466076 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_68.solverstate
+I0620 13:54:20.467811 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_69.caffemodel
+I0620 13:54:20.468197 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_69.solverstate
+I0620 13:54:20.469846 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_70.caffemodel
+I0620 13:54:20.470232 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_70.solverstate
+I0620 13:54:20.471925 12884 solver.cpp:218] Iteration 70 (479.954 iter/s, 0.0208353s/10 iters), loss = 7.69447
+I0620 13:54:20.471952 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.9375
+I0620 13:54:20.471958 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.0911457 (* 1 = 0.0911457 loss)
+I0620 13:54:20.471982 12884 solver.cpp:237]     Train net output #2: pts_loss = 13.9821 (* 0.5 = 6.99103 loss)
+I0620 13:54:20.471987 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.2246 (* 0.5 = 0.612299 loss)
+I0620 13:54:20.471989 12884 sgd_solver.cpp:105] Iteration 70, lr = 1e-11
+I0620 13:54:20.472110 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_71.caffemodel
+I0620 13:54:20.472453 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_71.solverstate
+I0620 13:54:20.474143 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_72.caffemodel
+I0620 13:54:20.474521 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_72.solverstate
+I0620 13:54:20.476258 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_73.caffemodel
+I0620 13:54:20.476773 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_73.solverstate
+I0620 13:54:20.478766 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_74.caffemodel
+I0620 13:54:20.479244 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_74.solverstate
+I0620 13:54:20.481137 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_75.caffemodel
+I0620 13:54:20.481549 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_75.solverstate
+I0620 13:54:20.483355 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_76.caffemodel
+I0620 13:54:20.483749 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_76.solverstate
+I0620 13:54:20.485417 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_77.caffemodel
+I0620 13:54:20.485795 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_77.solverstate
+I0620 13:54:20.487536 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_78.caffemodel
+I0620 13:54:20.487920 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_78.solverstate
+I0620 13:54:20.489593 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_79.caffemodel
+I0620 13:54:20.489966 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_79.solverstate
+I0620 13:54:20.491633 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_80.caffemodel
+I0620 13:54:20.492005 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_80.solverstate
+I0620 13:54:20.493705 12884 solver.cpp:218] Iteration 80 (459.775 iter/s, 0.0217498s/10 iters), loss = 7.87305
+I0620 13:54:20.493721 12884 solver.cpp:237]     Train net output #0: cls_Acc = 0.95
+I0620 13:54:20.493742 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.144406 (* 1 = 0.144406 loss)
+I0620 13:54:20.493772 12884 solver.cpp:237]     Train net output #2: pts_loss = 14.1937 (* 0.5 = 7.09683 loss)
+I0620 13:54:20.493789 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.26363 (* 0.5 = 0.631816 loss)
+I0620 13:54:20.493793 12884 sgd_solver.cpp:105] Iteration 80, lr = 1e-11
+I0620 13:54:20.493957 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_81.caffemodel
+I0620 13:54:20.494299 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_81.solverstate
+I0620 13:54:20.496022 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_82.caffemodel
+I0620 13:54:20.496415 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_82.solverstate
+I0620 13:54:20.498066 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_83.caffemodel
+I0620 13:54:20.498458 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_83.solverstate
+I0620 13:54:20.500134 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_84.caffemodel
+I0620 13:54:20.500525 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_84.solverstate
+I0620 13:54:20.502163 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_85.caffemodel
+I0620 13:54:20.502540 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_85.solverstate
+I0620 13:54:20.504184 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_86.caffemodel
+I0620 13:54:20.504576 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_86.solverstate
+I0620 13:54:20.506207 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_87.caffemodel
+I0620 13:54:20.506587 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_87.solverstate
+I0620 13:54:20.508291 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_88.caffemodel
+I0620 13:54:20.508673 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_88.solverstate
+I0620 13:54:20.511355 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_89.caffemodel
+I0620 13:54:20.511855 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_89.solverstate
+I0620 13:54:20.513844 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_90.caffemodel
+I0620 13:54:20.514240 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_90.solverstate
+I0620 13:54:20.516057 12884 solver.cpp:218] Iteration 90 (447.846 iter/s, 0.0223291s/10 iters), loss = 7.88073
+I0620 13:54:20.516073 12884 solver.cpp:237]     Train net output #0: cls_Acc = 1
+I0620 13:54:20.516079 12884 solver.cpp:237]     Train net output #1: cls_loss = 0.0629914 (* 1 = 0.0629914 loss)
+I0620 13:54:20.516083 12884 solver.cpp:237]     Train net output #2: pts_loss = 14.4221 (* 0.5 = 7.21103 loss)
+I0620 13:54:20.516088 12884 solver.cpp:237]     Train net output #3: roi_loss = 1.21341 (* 0.5 = 0.606707 loss)
+I0620 13:54:20.516091 12884 sgd_solver.cpp:105] Iteration 90, lr = 1e-11
+I0620 13:54:20.516216 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_91.caffemodel
+I0620 13:54:20.516536 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_91.solverstate
+I0620 13:54:20.518200 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_92.caffemodel
+I0620 13:54:20.518569 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_92.solverstate
+I0620 13:54:20.520246 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_93.caffemodel
+I0620 13:54:20.520624 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_93.solverstate
+I0620 13:54:20.522260 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_94.caffemodel
+I0620 13:54:20.522635 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_94.solverstate
+I0620 13:54:20.524291 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_95.caffemodel
+I0620 13:54:20.524667 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_95.solverstate
+I0620 13:54:20.526311 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_96.caffemodel
+I0620 13:54:20.526682 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_96.solverstate
+I0620 13:54:20.528314 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_97.caffemodel
+I0620 13:54:20.528692 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_97.solverstate
+I0620 13:54:20.530375 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_98.caffemodel
+I0620 13:54:20.530761 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_98.solverstate
+I0620 13:54:20.532495 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_99.caffemodel
+I0620 13:54:20.532888 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_99.solverstate
+I0620 13:54:20.534624 12884 solver.cpp:447] Snapshotting to binary proto file ./models/_iter_100.caffemodel
+I0620 13:54:20.535027 12884 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ./models/_iter_100.solverstate
+I0620 13:54:20.536260 12884 solver.cpp:310] Iteration 100, loss = 7.90875
+I0620 13:54:20.536270 12884 solver.cpp:315] Optimization Done.
+I0620 13:54:20.536288 12884 caffe.cpp:259] Optimization Done.
+

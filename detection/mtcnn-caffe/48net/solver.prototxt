@@ -1,0 +1,14 @@
+net : "train48.prototxt"
+# The base learning rate, momentum and the weight decay of the network.
+base_lr: 0.000001
+momentum: 0.9
+weight_decay: 0.004
+# The learning rate policy
+lr_policy: "step"
+stepsize: 3000#30000
+gamma: 0.8
+display: 5000   #500
+max_iter: 200000#600000
+snapshot: 5000
+snapshot_prefix: "./models/48net"
+solver_mode: GPU
