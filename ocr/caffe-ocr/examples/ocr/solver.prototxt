@@ -1,9 +1,10 @@
-net: "/media/liujin/8f304754-fa23-4d25-bdd9-8095e1958bb7/project/caffe-ocr/examples/ocr/train.prototxt"
-test_iter: 160
+net: "./train.prototxt"
+test_iter: 773
 test_interval: 100
 
 base_lr: 0.0001
 momentum: 0.9
+#weight_decay: 0.001
 weight_decay: 0.0005
 #lr_policy: "inv"
 #gamma: 0.0001
@@ -19,11 +20,8 @@ stepvalue: 50000
 display: 100
 max_iter: 500000
 
-snapshot: 100
-snapshot_prefix: "/media/liujin/8f304754-fa23-4d25-bdd9-8095e1958bb7/project/caffe-ocr/examples/ocr/snapshot/mylstm"
+snapshot: 500
+snapshot_prefix: "/media/d/liujin/chepaiRecognition/caffe-ocr/examples/ocr/snapshot/mylstm"
 
 solver_mode: GPU
 device_id: 0
-
-
-

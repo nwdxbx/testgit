@@ -12,15 +12,15 @@ dict = {'0': '0', '1': 1, '2': '2', '3': '3', '4': 4, '5': '5', '6': '6', '7': 7
         'R': '25', 'S': '26', 'T': '27', 'U': '28', 'V': '29', 'W': '30', 'X': '31', 'Y': '32', 'Z': '33', "京": "34", "沪": "35", "津": "36", "渝": "37",
         '黑': '38', '吉': '39', '辽': '40', '蒙': '41', '冀': '42', '新': '43', '甘': '44', '青': '45', '陕': '46', '宁': '47', '豫': '48', '鲁': '49',
         '晋': '50', '皖': '51', '鄂': '52', '湘': '53', '苏': '54', '川': '55', '贵': '56', '云': '57', '桂': '58', '藏': '59', '浙': '60', '赣': '61',
-        '粤': '62', '闽': '63', '琼': '64', '挂': '65', '学': '66', '警': '67'}
+        '粤': '62', '闽': '63', '琼': '64', '挂': '65', '学': '66', '警': '67'};
 
-color = {'blue': '0', 'green': '1', 'white': '2', 'black': '3', 'yellow': '4'}
+color = {'blue': '0', 'green': '1', 'white': '2', 'black': '3', 'yellow': '4'};
 color_index = 0
 bDouble = 0
 
 
-dir_path = "/media/d/ocr/caffe_ocr/data/val"
-fd=open('./val.txt','w')
+dir_path = "/media/liujin/8f304754-fa23-4d25-bdd9-8095e1958bb7/project/caffe-ocr/data/plate/train_color"
+fd=open('./train.txt','w')
 
 num = 0
 
@@ -38,9 +38,9 @@ for root,dirs,files in os.walk(dir_path):
 		plate_num = split_name[1]
 		plate_len = len(plate_num)
 		print "plate_len=",plate_len
-		if plate_len < 5:
-			print "plate_num=",plate_num
-			continue
+		#if plate_len < 5:
+		#	print "plate_num=",plate_num
+		#	continue
 
 		ret1 = img_path.find('blue')
 		if ret1 != -1:
@@ -109,8 +109,8 @@ for root,dirs,files in os.walk(dir_path):
 			plate.append(dict[plate_num[4]])
 			label_name = img_path+' '+"68 68 68 68 68 68 68 68 68 68 68 68 68 "+str(54)+' '+str(0)+' '+str(plate[1])+' '+str(plate[1])+' '+str(plate[2])+' '+str(plate[3])+' '+str(plate[4])+' '+str(color_index)+'\n'
 		else:
-			print "error: platenum=",plate_num
-			continue
+			print "img_path=",img_path
+			label_name = img_path+' '+"68 68 68 68 68 68 68 68 68 68 68 68 68 "+str(54)+' '+str(0)+' '+str(0)+' '+str(0)+' '+str(0)+' '+str(0)+' '+str(0)+' '+str(color_index)+'\n'
 
 		#print "plate_org(%d %c %c %c %c %c %c)"%(54,plate_num[0],plate_num[1],plate_num[2],plate_num[3],plate_num[4],plate_num[5])
 		#print("plate({0} {1} {2} {3} {4} {5} {6})".format(plate[0],plate[1],plate[2],plate[3],plate[4],plate[5],plate[6]))
