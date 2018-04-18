@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+message face_feat_entry
+{
+    repeated float reid_face_feat = 1;
+}
+message human_feat_entry
+{
+    repeated float reid_feat = 1;
+}

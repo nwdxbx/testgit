@@ -1,0 +1,10 @@
+Project(Demo)
+include_directories(${CMAKE_SOURCE_DIR}/3rdParty/boost_1_59_0)
+link_directories(${CMAKE_SOURCE_DIR}/3rdParty/boost_1_59_0/stage/lib)
+add_executable(analysis_demo analysis_demo.cpp ../include/tuzhenalginterface.hpp)
+add_executable(feature_cal_demo feature_cal_demo.cpp ../include/tuzhenfeature.h)
+link_directories(${CMAKE_SOURCE_DIR}/lib)
+target_link_libraries(analysis_demo tuzhenalg boost_system boost_thread opencv_core opencv_imgproc opencv_imgcodecs opencv_highgui opencv_ml opencv_video opencv_videoio opencv_cudaobjdetect opencv_cudaimgproc opencv_cudawarping)
+target_link_libraries(feature_cal_demo tuzhenalg boost_system boost_thread opencv_core opencv_imgproc opencv_imgcodecs opencv_highgui opencv_ml opencv_video opencv_videoio opencv_cudaobjdetect opencv_cudaimgproc opencv_cudawarping)
+
+
