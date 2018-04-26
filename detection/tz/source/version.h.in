@@ -1,0 +1,7 @@
+#ifndef TUZHEN_ALG_VERSION_HPP
+#define TUZHEN_ALG_VERSION_HPP
+#include <string>
+const std::string VERSION_MAJOY("@VERSION_MAJOR@");
+const std::string VERSION_MINER("@VERSION_MINER@");
+const std::string VERSION_PATCH("@VERSION_PATCH@");
+#endif
