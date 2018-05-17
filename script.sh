@@ -19,3 +19,8 @@ sed -i "15i contents" Lab.txt #选中第几行插入内容
 sed -n "1,21p" Lab.txt >>test.txt #从文件中选中的行写入到另一个文件中
 cat train.txt | sort -k2 -n #将文件中所有项按第二个字段排序
 cat train.txt | awk '{print $2}' |sort|uniq -c | sort -k2 -n #将文件第二个字段的个数进行统计，并按第二个字段排序(统计每个类别的个数)
+ls -l |grep "^-"|wc -l #统计某文件夹下文件的个数
+ls -l |grep "^ｄ"|wc -l #统计某文件夹下目录的个数
+ls -lR|grep "^-"|wc -l #统计文件夹下文件的个数，包括子文件夹里的
+ls -lR|grep "^d"|wc -l #统计文件夹下目录的个数，包括子文件夹里的
+ls -lR /imagedata/data/20161108|grep txt|wc -l #统计/imagedata/data/20161108目录(包含子目录)下的所有txt文件
