@@ -3,6 +3,12 @@ processon
 #文档撰写
 office online
 
+#ubuntu环境变量
+vim ~/.bashrc   #source .bashrc
+vim /etc/profile    #sudo ldconfig
+vim /etc/ld.so.conf.d/xxx.conf  #sudo ldconfig
+vim /etc/bash.bashrc
+
 tail -f filename #实时显示文件最新内容
 :%s/^/... #文件头添加
 : s/vivian/sky/ #替换当前行第一个
