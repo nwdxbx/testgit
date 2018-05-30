@@ -9,6 +9,8 @@ vim /etc/profile    #sudo ldconfig
 vim /etc/ld.so.conf.d/xxx.conf  #sudo ldconfig
 vim /etc/bash.bashrc
 
+echo "password" | sshfs username@192.168.101.204:/home/user/abc /media/d/test -o allow_other -o password_stdin  #本地挂载到远程
+
 tail -f filename #实时显示文件最新内容
 :%s/^/... #文件头添加
 : s/vivian/sky/ #替换当前行第一个
@@ -30,3 +32,5 @@ ls -l |grep "^ｄ"|wc -l #统计某文件夹下目录的个数
 ls -lR|grep "^-"|wc -l #统计文件夹下文件的个数，包括子文件夹里的
 ls -lR|grep "^d"|wc -l #统计文件夹下目录的个数，包括子文件夹里的
 ls -lR /imagedata/data/20161108|grep txt|wc -l #统计/imagedata/data/20161108目录(包含子目录)下的所有txt文件
+
+
