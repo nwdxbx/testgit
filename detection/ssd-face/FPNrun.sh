@@ -1,0 +1,1 @@
+/media/e/FrameWork/caffe-ssd/build/tools/caffe train -solver=FPNsolver.prototxt -weights=./FPN_iter_38000.caffemodel

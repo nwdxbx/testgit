@@ -1,0 +1,2 @@
+export PYTHON_PATH=/media/e/FrameWork/caffe-ssd/build/python:$PYTHON_PATH
+/media/e/FrameWork/caffe-ssd/build/tools/caffe train -gpu 0 -solver solver_person_re_ID.prototxt -weights humanAttribute_iter_2200.caffemodel
